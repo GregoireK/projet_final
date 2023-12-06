@@ -20,7 +20,7 @@ def connexion_s3():
 
  
      # avec load_dotenv je charge un .env que j etrouve avec la fonction find_dotenv
-    load_dotenv(find_dotenv("dotenv/.env"))
+    load_dotenv(find_dotenv("/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/dotenv/.env"))
     # je créer une session avec boto3 dans laquel je passe mes key (du fihcier .env)
     # la .session() de boto" meconnecte à AWS
     session = boto3.Session(aws_access_key_id=os.environ.get("AWS_S3_ACCESS_KEY_ID"), 
