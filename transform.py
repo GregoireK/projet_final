@@ -5,6 +5,9 @@ import numpy as np
 import os
 import dotenv
 from dotenv import load_dotenv, find_dotenv
+from datetime import datetime
+import locale
+locale.setlocale(locale.LC_TIME, 'fr_FR')
 
 # récupération des tarifs confidentiels dans le .env
 os.environ.clear()
@@ -15,6 +18,7 @@ extra_salaire_urgence = float(os.environ.get("extra_salaire_urgence"))
 # import des fichiers anonymisés
 extras = pd.read_csv('fichiers-anonymes/extras_anonymes.csv')
 missions = pd.read_csv('fichiers-anonymes/missions_anonymes.csv')
+hotels = pd.read_csv('fichiers-anonymes/hotel_anonymes.csv')
 
 #  -- colonnes finales de la table missions --
 # ['hôtel', 'extra', 'tarif urgence', 'tarif horaire', 'facture', 'règlement', 'date_debut', 'date_fin', 'duree_mission', 'urgent',
@@ -50,6 +54,9 @@ def transform_missions(missions):
     # conversion des colonnes date_debut et date_fin en datetime 
     missions['date_debut'] = pd.to_datetime(missions['date_debut'], format='%d/%m/%Y %H:%M')
     missions['date_fin'] = pd.to_datetime(missions['date_fin'], format='%d/%m/%Y %H:%M')
+
+    missions.drop('date', axis=1, inplace=True) # suppression de la colonne date
+
     print("Transformation de la colonne date terminée.")
 
     # -- fin de la transformation de la colonne date --
@@ -76,7 +83,7 @@ def transform_missions(missions):
     
     missions['heures_supp'] = missions['Texte'].replace(replace_supp)
 
-    missions.drop('Texte', axis=1) # suppression de la colonne Texte
+    missions.drop('Texte', axis=1, inplace=True) # suppression de la colonne Texte
     print("Ajout de la colonne heures_supp terminée.")
 
     # -- fin de l'ajout de la colonne heures_supp --
@@ -144,6 +151,8 @@ def transform_extra(extras):
     # les dates sont sous la forme 01 01 2020 00:00 je les transforme en datetime
     extras['vacance_debut'] = pd.to_datetime(extras['vacance_debut'], format='%d %m %Y %H:%M') 
     extras['vacance_fin'] = pd.to_datetime(extras['vacance_fin'], format='%d %m %Y %H:%M')
+    extras.drop('vacances', axis=1, inplace=True) # suppresion de la colonne 'vacances'
+
     print("Transformation de la colonne vacances terminée.")
     # -- fin de la transformation de la colonne vacances --
 
@@ -156,12 +165,37 @@ def transform_extra(extras):
     print("Transformation de la colonne Disponibilités terminée.")
     # -- fin de la transformation de la colonne Disponibilités --
 
+    # -- Transformation de la colonne 'Date de création' en datetime --
+    extras['Date de création'] = extras['Date de création'].apply(lambda x: datetime.strptime(x, "%d %B %Y %H:%M"))
+    print("Transformation de la colonne 'Date de création' terminée.")
+
     print("Toutes les transformations sont terminées.")
     print("######################")
 
-transform_missions(missions)
 
+def transform_hotel(hotels):
+    # -- Transformation de la colonne 'Date de création' en datetime --
+    hotels['Date de création'] = hotels['Date de création'].apply(lambda x: datetime.strptime(x, "%d %B %Y %H:%M"))
+    print("Transformation de la colonne 'Date de création' terminée.")
+
+    print("Toutes les transformations sont terminées.")
+    print("######################")
+
+# application des transformations
+transform_missions(missions)
 transform_extra(extras)
+transform_hotel(hotels)
+
+# export des fichiers transformés en csv
+missions.to_csv('missions_viz.csv', index=False)
+extras.to_csv('extras_viz.csv', index=False)
+hotels.to_csv('hotels_viz.csv', index=False)
+
+# nom des colonnes finales
+print(missions.columns)
+print(extras.columns)
+print(hotels.columns)
+
         
 
 
