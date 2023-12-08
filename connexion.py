@@ -5,11 +5,16 @@ import psycopg2
 import pandas as pd
 import sys
 import os
+import dotenv
+import sqlalchemy
 from io import BytesIO
 from io import StringIO
 import botocore
 from botocore.exceptions import NoCredentialsError
 from dotenv import load_dotenv, find_dotenv
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
+from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.types import DateTime
 
 # on utilise un env pour masquer les identifiants de connexion.
 
@@ -75,29 +80,16 @@ def connexion_s3(session):
 
 def connexion_rds(session):
     os.environ.clear()
-    ENDPOINT= "database-1.cxpuckismlkx.eu-west-3.rds.amazonaws.com"
-    PORT = "5432"
-    USER= "postgres"
-    REGION="eu-west-3a"
-    DBNAME = "postgres"
-
-
-    # avec load_dotenv je charge un .env que j etrouve avec la fonction find_dotenv
     load_dotenv(find_dotenv("/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/dotenv/.env"))
-    # je créer une session avec boto3 dans laquel je passe mes key (du fihcier .env)
-    # la .session() de boto" meconnecte à AWS
+    AWS_RDS_ENDPOINT= os.environ.get("AWS_RDS_ENDPOINT")
+    AWS_RDS_REGION=os.environ.get("AWS_RDS_REGION")
+    DBNAME = os.environ.get("DBNAME")
+    AWS_RDS_USER = os.environ.get("AWS_RDS_USER")
+    AWS_RDS_PASSWORD = os.environ.get("AWS_RDS_PASSWORD")
+    AWS_RDS_PORT = os.environ.get("AWS_RDS_PORT")
+    engine = create_engine(f'postgresql+psycopg2://{AWS_RDS_USER}:{AWS_RDS_PASSWORD}@{AWS_RDS_ENDPOINT}:{AWS_RDS_PORT}/{DBNAME}')
 
-    rds_client = session.client('rds')
-    #token = rds_client.generate_db_auth_token(DBHostname=ENDPOINT, Port=PORT, DBUsername=USER, Region=REGION)
-    #print(token, type(token))
-    try:
-        connexion = psycopg2.connect(host=ENDPOINT, port=PORT, database=DBNAME, user=USER, password=os.environ.get("AWS_RDS_PASSWORD"), sslrootcert="SSLCERTIFICATE")
-        cursor = connexion.cursor()
-        cursor.execute("""SELECT now()""")
-        query_results = cursor.fetchall()
-        print(query_results)
-    except Exception as e:
-        print("Database connection failed due to {}".format(e)) 
+
 
     return "Connexion réussie au bucket rds."
 
