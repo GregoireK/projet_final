@@ -78,21 +78,6 @@ def connexion_s3(session):
         return None
 
 
-def connexion_rds(session):
-    os.environ.clear()
-    load_dotenv(find_dotenv("/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/dotenv/.env"))
-    AWS_RDS_ENDPOINT= os.environ.get("AWS_RDS_ENDPOINT")
-    AWS_RDS_REGION=os.environ.get("AWS_RDS_REGION")
-    DBNAME = os.environ.get("DBNAME")
-    AWS_RDS_USER = os.environ.get("AWS_RDS_USER")
-    AWS_RDS_PASSWORD = os.environ.get("AWS_RDS_PASSWORD")
-    AWS_RDS_PORT = os.environ.get("AWS_RDS_PORT")
-    engine = create_engine(f'postgresql+psycopg2://{AWS_RDS_USER}:{AWS_RDS_PASSWORD}@{AWS_RDS_ENDPOINT}:{AWS_RDS_PORT}/{DBNAME}')
-
-
-
-    return "Connexion réussie au bucket rds."
-
 
 
 

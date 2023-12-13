@@ -23,7 +23,7 @@ from sqlalchemy.types import DateTime
 # Définir la base de données
 Base = declarative_base()
 
-def load_data(df_missions, df_extra, df_hotel):
+def load_data_to_rds(df_missions, df_extra, df_hotel, df_logiciel, df_logiciel_extra):
     os.environ.clear()
     load_dotenv(find_dotenv("/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/dotenv/.env"))
     AWS_RDS_ENDPOINT= os.environ.get("AWS_RDS_ENDPOINT")
@@ -33,12 +33,44 @@ def load_data(df_missions, df_extra, df_hotel):
     AWS_RDS_PASSWORD = os.environ.get("AWS_RDS_PASSWORD")
     AWS_RDS_PORT = os.environ.get("AWS_RDS_PORT")
 
-    # Créer le moteur de base de données
+    print("-- Connexion au RDS en cours... --")
+    # création du moteur de connexion
     engine = create_engine(f'postgresql+psycopg2://{AWS_RDS_USER}:{AWS_RDS_PASSWORD}@{AWS_RDS_ENDPOINT}:{AWS_RDS_PORT}/{DBNAME}')
+    print("Connexion au RDS établie.")
+    print("##########################################")
 
-    # Remplacez ces valeurs par vos DataFrames
-    df_missions.to_sql('missions', engine, index=False, if_exists='append')
-    df_extra.to_sql('extra', engine, index=False, if_exists='append')
-    df_hotel.to_sql('hotel', engine, index=False, if_exists='append')
 
-    print("Chargement des données dans le RDS terminé.")
+    print(" -- Chargement des données dans le RDS en cours... --")
+    # injection des données dans le RDS
+    # tant que l'on est en phase de test, on remplace les tables à chaque fois
+    try:
+        df_extra.to_sql('extra', engine, index=False, if_exists='replace')
+        print("Chargement des données dans la table extra terminé.")
+    except Exception as e:
+        print("Erreur lors du chargement des données dans la table extra : ", e)
+
+    try:
+        df_hotel.to_sql('hotel', engine, index=False, if_exists='replace')
+        print("Chargement des données dans la table hotel terminé.")
+    except Exception as e:
+        print("Erreur lors du chargement des données dans la table hotel : ", e)
+
+    try:
+        df_missions.to_sql('missions', engine, index=False, if_exists='replace')
+        print("Chargement des données dans la table missions terminé.")
+    except Exception as e:
+        print("Erreur lors du chargement des données dans la table missions : ", e)
+
+    try:
+        df_logiciel.to_sql('logiciel', engine, index=False, if_exists='replace')
+        print("Chargement des données dans la table logiciel terminé.")
+    except Exception as e:
+        print("Erreur lors du chargement des données dans la table logiciel : ", e)
+
+    try:
+        df_logiciel_extra.to_sql('logiciel_extra', engine, index=False, if_exists='replace')
+        print("Chargement des données dans la table logiciel_extra terminé.")
+    except Exception as e: 
+        print("Erreur lors du chargement des données dans la table logiciel_extra : ", e)
+
+    print("-- Chargement des données dans le RDS terminé. --")
