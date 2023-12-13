@@ -5,6 +5,12 @@ import numpy as np
 import os
 import dotenv
 from dotenv import load_dotenv, find_dotenv
+from datetime import datetime
+import locale
+
+locale.setlocale(locale.LC_TIME, 'fr_FR.utf8')
+
+
 
 # récupération des tarifs confidentiels dans le .env
 os.environ.clear()
@@ -12,15 +18,44 @@ os.environ.clear()
 load_dotenv(find_dotenv("/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/dotenv/.env"))
 extra_salaire = float(os.environ.get("extra_salaire"))
 extra_salaire_urgence = float(os.environ.get("extra_salaire_urgence"))
+tarif_urgence = float(os.environ.get("tarif_urgence"))
+sample_size = float(os.environ.get("sample_size"))
 
-# import des fichiers anonymisés
-extras = pd.read_csv('fichiers-anonymes/extras_anonymes.csv')
-missions = pd.read_csv('fichiers-anonymes/missions_anonymes.csv')
 
-#  -- colonnes finales de la table missions --
-# ['hôtel', 'extra', 'tarif urgence', 'tarif horaire', 'facture', 'règlement', 'date_debut', 'date_fin', 'duree_mission', 'urgent',
-#      'annulation', 'heures_supp', 'Total_HT', 'Total_TTC', 'extra_salaire', 'bénéfice']
+# fonction de création des key et des foreign key dans les dataframes extra, hotel et missions
+def foreign_key_setup(missions, hotels, extras):
+    missions.dropna(subset=['hôtel', 'extra'], inplace=True) # on retire les lignes vides pour l'hôtel ou l'extra 
+    missions.reset_index(drop=True, inplace=True) # reindexation
+    try: 
+        hotels.insert(0, 'hotel_id', range(1, 1 + len(hotels)))
+        #je rajoute une lettre h à l'index chiffré
+        hotels['hotel_id'] = 'h' + hotels['hotel_id'].astype(str)
+        extras.insert(0, 'extra_id', range(1, 1 + len(extras)))
+        extras['extra_id'] = 'e' + extras['extra_id'].astype(str)
+        missions.insert(0, 'mission_id', range(1, 1 + len(missions)))
+        missions['mission_id'] = 'm' + missions['mission_id'].astype(str)
+    except:
+        pass
+    # on remplace le nom de l'hote par son id dans la colonne hôtel de la dataframe missions
+    liste_hotel_id = []
+    liste_extra_id = []
+    for i in missions['hôtel']:
+        try:
+            liste_hotel_id.append(hotels['hotel_id'].where(hotels['nom'] == i).dropna().values[0])
+        except:
+            pass
+    # on remplace le nom de l'extra par son id dans la colonne extra de la dataframe missions
+    for i in missions['extra']:
+        try:
+            liste_extra_id.append(extras['extra_id'].where(extras['nom'] == i).dropna().values[0])
+        except:
+            pass
+    missions['hôtel'] = liste_hotel_id
+    missions['extra'] = liste_extra_id
+    print("Mise en place des foreigns keys terminée.")
+    return missions, hotels, extras
 
+# fonction de transformation et d'ajout de colonnes dans la dataframe missions
 def transform_missions(missions):
     # -- Transformation de la colonne date en date_debut et date_fin --
     print("######################")
@@ -52,9 +87,6 @@ def transform_missions(missions):
     # conversion des colonnes date_debut et date_fin en datetime 
     missions['date_debut'] = pd.to_datetime(missions['date_debut'], format='%d/%m/%Y %H:%M')
     missions['date_fin'] = pd.to_datetime(missions['date_fin'], format='%d/%m/%Y %H:%M')
-
-    missions.drop('date', axis=1, inplace=True) # suppression de la colonne date
-
     print("Transformation de la colonne date terminée.")
 
     # -- fin de la transformation de la colonne date --
@@ -81,7 +113,7 @@ def transform_missions(missions):
     
     missions['heures_supp'] = missions['Texte'].replace(replace_supp)
 
-    missions.drop('Texte', axis=1, inplace=True) # suppression de la colonne Texte
+    missions.drop('Texte', axis=1) # suppression de la colonne Texte
     print("Ajout de la colonne heures_supp terminée.")
 
     # -- fin de l'ajout de la colonne heures_supp --
@@ -151,6 +183,7 @@ def transform_extra(extras):
     # les dates sont sous la forme 01 01 2020 00:00 je les transforme en datetime
     extras['vacance_debut'] = pd.to_datetime(extras['vacance_debut'], format='%d %m %Y %H:%M') 
     extras['vacance_fin'] = pd.to_datetime(extras['vacance_fin'], format='%d %m %Y %H:%M')
+    extras.drop(['vacances'], axis=1, inplace=True)
     print("Transformation de la colonne vacances terminée.")
     # -- fin de la transformation de la colonne vacances --
 
@@ -170,25 +203,159 @@ def transform_extra(extras):
     print("Transformation de la colonne Disponibilités terminée.")
     # -- fin de la transformation de la colonne Disponibilités --
 
-    # -- Transformation de la colonne 'Date de création' en datetime --
-    extras['Date de création'] = extras['Date de création'].apply(lambda x: datetime.strptime(x, "%d %B %Y %H:%M"))
-    print("Transformation de la colonne 'Date de création' terminée.")
-
     print("Toutes les transformations sont terminées.")
     print("######################")
 
+    return extras
 
+# fonction de transformation et d'ajout de colonnes dans la dataframe hotel
 def transform_hotel(hotels):
+    print("######################")
+    print('Phase de transformation pour les hotels')
     # -- Transformation de la colonne 'Date de création' en datetime --
     hotels['Date de création'] = hotels['Date de création'].apply(lambda x: datetime.strptime(x, "%d %B %Y %H:%M"))
     print("Transformation de la colonne 'Date de création' terminée.")
 
+    # -- On enleve les espaces au debut et à la fin de toutes les colonnes texte --
+    hotels = hotels.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+
     print("Toutes les transformations sont terminées.")
     print("######################")
+    return hotels
 
-transform_missions(missions)
+# fonction de création de la table logiciel
+def create_table_logiciel(extras):
+    # je crée une liste qui rassemble tous les logiciels dans le dataframe extra. je split et je supprimme les doublons
+    logiciel = extras['logiciel'].tolist()
+    # je boucle sur la liste pour appliquer la méthode split et je passe le résultat dans une liste
+    # attntion les valaeurs nan(type float) provoque une erreur
+    logiciels_liste = []
+    for i in logiciel:
+        if type(i) is float:
+            pass
+        else:
+            logiciels_liste.append(i.split(','))
+    # je supprime les espaces en début de chaine de caractère
+    logiciels_liste = [[j.strip() for j in i] for i in logiciels_liste]
+    # je supprime les doublons dans la liste avec la fonction set()
+    logiciels_liste = set([item for sublist in logiciels_liste for item in sublist])
+    # j'obtiens une iste de 18 noms de logiciels.
+    # je crée un dataframe avec les noms de logiciels
+    logiciel_df = pd.DataFrame(logiciels_liste, columns=['logiciel_name'])
+    # je rajoute une colonne logiciel_id
+    logiciel_df.insert(0, 'logiciel_id', range(1, 1 + len(logiciel_df)))
+    logiciel_df['logiciel_id'] = 'l' + logiciel_df['logiciel_id'].astype(str)
+    return logiciel_df
 
-transform_extra(extras)
+def join_table_logiciel_extra(extras, logiciel_df):
+    # -- Etape 1 --
+    # je selectione les colonnes de extra sur lequelle je vais travailler
+    # je veux extra_id et les logiciel sous la forme d'une liste
+    extract_extra = extras[['extra_id', 'logiciel']]
+    # Fonction pour transformer la chaîne de caractères en une liste de logiciels
+    def split_logiciels(logiciels_string):
+        if type(logiciels_string) is float:
+            pass
+        else:
+            return logiciels_string.split(', ')
+    # je lance a fonction split avec .apply() sur la colonne logiciel
+    try:
+        extract_extra['logiciel'] = extract_extra['logiciel'].apply(split_logiciels)
+    except:
+        pass
+
+    # -- Etape 2 -- 
+    # je crée un dataframe qui regroupe les associations extra_id - logiciel_id
+    # on utilise la fonction .apply() qui va appliquer sur chaque ligne la fonction process_row
+    # la fonction process_row que va récuperer les informations et les renvoyer sous forme de DataFrame
+    # process_row() prend la ligne en argument = on obtiens l'extra_id et la liste des logiciels
+    # sur cette ligne à chaque fois que le nom d'un logiciel est présent on séléctionne l'id du logiciel et l'id de l'extra
+    # (si la valeur est nan, on passe)
+    # les données sont ajouté à une liste (fonction .append) qui est ensuite transformée en DataFrame
+    # on utilise la fonction pd.concat() pour concaténer les DataFrame
+    # la dataframe finale est renvoyéé et représente un jointure entre l'extra_id et le logicel_id
+
+    # Fonction personnalisée à appliquer avec apply en argument chqaue ligne
+    def process_row(row):
+        extra_logiciels = row['logiciel']
+        extra_id = row['extra_id']
+        # liste vide dans laquelle on va ajouter les associations extra_id - logiciel_id - logiciel_name
+        rows_to_append = []
+        # si la valeur est nan, on retourne un DataFrame vide
+        if type(extra_logiciels) is not list:
+            pass
+        # on crée une liste vide dans laquelle on ajoute chaque association
+        # extra_id - logiciel_id - logiciel_name
+        else:
+            # extra_logiciels est une liste de logiciels on boucle dessus
+            for logiciel in extra_logiciels:
+                if logiciel in logiciel_df['logiciel_name'].tolist():
+                    logiciel_id = logiciel_df.loc[logiciel_df['logiciel_name'] == logiciel, 'logiciel_id'].values
+                    rows_to_append.append({'extra_id': extra_id, 'logiciel_id': logiciel_id[0]})
+        # on renvoie la liste sous forme de dataframe
+        return pd.DataFrame(rows_to_append)
+
+    join_table = pd.concat(extract_extra.apply(process_row, axis=1).tolist(), ignore_index=True)
+    return join_table
+
+# fonction d'échantilonaage des données
+def echantillonnage(missions, hotels, extras):
+    print("######################")
+    print('Phase d\'échantillonnage')
+    # on prend un echantillon des hotels et des extras pour masquer le nombre de clients réels
+    # sample_size est une valeur cachée dans le .env
+    hotels = hotels.sample(frac=sample_size, random_state=1)
+    extras = extras.sample(frac=sample_size, random_state=1)
+
+
+    
+    # on récupère la liste d'hotels et d'extras de l'échantillon
+    valeurs_hotels = hotels['hotel_id'].unique()
+    valeurs_extras = extras['extra_id'].unique()
+
+    # on créé des conditions pour garder les missions ayant un extra et un hôtel inclus dans les échantillons pris ci-dessus
+    cond_hotels = missions['hôtel'].isin(valeurs_hotels)
+    cond_extras = missions['extra'].isin(valeurs_extras)
+
+    # on filtre les missions à l'aide des conditions
+    missions = missions[cond_hotels & cond_extras]
+    print("######################")
+    print("Echantillonnage terminé.")
+    # on retourne les 3 dataframes échantillonnées
+    return missions, hotels, extras
+  
+# fonction d'enregistrement des csv
+def print_csv(missions_transform, extra_transform, hotel_transform, logiciel_df, join_table):
+    print("######################")
+    print("Phase d'enregistrement des CSV")
+    missions_transform.to_csv('/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/missions_transform_sampling.csv')
+    extra_transform.to_csv('/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/extra_transform_sampling.csv') 
+    hotel_transform.to_csv('/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/hotel_transform_sampling.csv')
+    logiciel_df.to_csv("/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/logiciel.csv")
+    join_table.to_csv("/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/join_logiciel_extra.csv")
+    print("CSV enregistrés.")
+    print("######################") 
+
+# fonction d'enregistrement du csv pour le ML
+def ml_transform_save(missions_transform):
+    # je crée une colonne date avec uniquement la date en yyyy-mm-dd
+    missions_transform['date'] = pd.to_datetime(missions_transform['date_debut']).dt.date
+
+    # je filtre les date pour ne pas avoir les dates après le 03 décembre 
+    # ne pas oublier de tranfromer la date avec pd.to_datetime("yyyy-mm-dd") et d'y ajouter.date() 
+    # pour que la comparaison se fasse au même format
+    d = pd.to_datetime("2023-12-03").date()
+    df= missions_transform[missions_transform['date'] <= d]
+
+
+    # je fais un group by pour compter le nombre de missions par jour avec la fonction size()
+    missions_par_jour = df.groupby('date').size()
+    # j'enregistre le tout dans un csv. 
+    missions_par_jour.to_csv('/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/ml_mission.csv')
+
+    print("CSV pour le ML enregistré")
+
+
         
 
 
