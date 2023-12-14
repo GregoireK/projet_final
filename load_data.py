@@ -14,7 +14,6 @@ from sqlalchemy.types import DateTime
 Le fichier load_data.py permet:
 - de créer un engine pour se connecter au RDS
 - de charger les données transformées dans le RDS
-
 """
 
 

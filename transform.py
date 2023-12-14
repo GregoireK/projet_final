@@ -9,6 +9,7 @@ from dotenv import load_dotenv, find_dotenv
 from datetime import datetime
 from datetime import timedelta
 import locale
+
 """
 Le fichier Transform.py contient l'ensemble des fonctions qui permettent de:
 - crée les foreifn keys
