@@ -1,22 +1,21 @@
 
-# fichier de chargement des donnée dans le RDS 
-import boto3
-import psycopg2
+# import des librairies
 import pandas as pd
 import sys
 import os
 import dotenv
 import sqlalchemy
-from io import BytesIO
-from io import StringIO
-import botocore
-from botocore.exceptions import NoCredentialsError
 from dotenv import load_dotenv, find_dotenv
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.types import DateTime
 
+"""
+Le fichier load_data.py permet:
+- de créer un engine pour se connecter au RDS
+- de charger les données transformées dans le RDS
 
+"""
 
 
 

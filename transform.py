@@ -9,6 +9,18 @@ from dotenv import load_dotenv, find_dotenv
 from datetime import datetime
 from datetime import timedelta
 import locale
+"""
+Le fichier Transform.py contient l'ensemble des fonctions qui permettent de:
+- crée les foreifn keys
+- transformer les données des dataframes missions, hotels et extras
+- créer les tables logiciel et join_logiciel_extra
+- effectuer un échantillonnage des données
+- rescaler les données
+- enregistrer les csv
+- créer le csv pour le Machine Learning
+"""
+
+
 
 # definition du language selon l'utilisateur
 try:
@@ -35,7 +47,8 @@ coefficient = float(os.environ.get("coefficient"))
 
 # fonction de création des key et des foreign key dans les dataframes extra, hotel et missions
 def foreign_key_setup(missions, hotels, extras):
-    missions.dropna(subset=['hôtel', 'extra'], inplace=True) # on retire les lignes vides pour l'hôtel ou l'extra 
+     # on retire les lignes vides pour l'hôtel ou l'extra 
+    missions.dropna(subset=['hôtel', 'extra'], inplace=True)
     missions.reset_index(drop=True, inplace=True) # reindexation
     try: 
         hotels.insert(0, 'hotel_id', range(1, 1 + len(hotels)))
@@ -70,7 +83,7 @@ def foreign_key_setup(missions, hotels, extras):
 def transform_missions(missions):
     # -- Transformation de la colonne date en date_debut et date_fin --
     print("######################")
-    print('Phase de transformation pour les missions')
+    print('-- Phase de transformation pour les missions --')
     missions.dropna(subset=['hôtel', 'extra'], inplace=True) # on retire les lignes vides pour l'hôtel ou l'extra 
     missions.reset_index(drop=True, inplace=True) # reindexation
 
@@ -175,7 +188,7 @@ def transform_missions(missions):
                    'tarif horaire': 'tarif_horaire', 'règlement':'reglement'}
     missions.rename(columns=nvlles_cols, inplace=True)
 
-    print("Toutes les transformations sont terminées.")
+    print("-- Toutes les transformations sont terminées. --")
     print("######################")
 
     return missions
@@ -183,7 +196,7 @@ def transform_missions(missions):
 # fonction de transformation et d'ajout de colonnes dans la dataframe extra
 def transform_extra(extras):
     print("######################")
-    print('Phase de transformation pour les extras')
+    print('-- Phase de transformation pour les extras --')
 
     liste_mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet',
               'août', 'septembre', 'octobre', 'novembre', 'décembre']
@@ -204,7 +217,7 @@ def transform_extra(extras):
     extras['vacance_fin'] = pd.to_datetime(extras['vacance_fin'], format='%d %m %Y %H:%M')
     extras.drop(['vacances'], axis=1, inplace=True)
     print("Transformation de la colonne vacances terminée.")
-    # -- fin de la transformation de la colonne vacances --
+   
 
     # -- Transformation de la colonne Disponibilités --
     # je fusionne les colonnes disponibilités et dispos
@@ -216,13 +229,10 @@ def transform_extra(extras):
     extras['date_de_creation'] = extras['Date de création']
     extras['date_de_creation'] = extras['date_de_creation'].apply(lambda x: datetime.strptime(x, "%d %B %Y %H:%M"))
     extras.drop(['Date de création'], axis=1, inplace=True)
-
-
-
     print("Transformation de la colonne Disponibilités terminée.")
     # -- fin de la transformation de la colonne Disponibilités --
 
-    print("Toutes les transformations sont terminées.")
+    print("-- Toutes les transformations sont terminées.--")
     print("######################")
 
     return extras
@@ -230,7 +240,7 @@ def transform_extra(extras):
 # fonction de transformation et d'ajout de colonnes dans la dataframe hotel
 def transform_hotel(hotels):
     print("######################")
-    print('Phase de transformation pour les hotels')
+    print('-- Phase de transformation pour les hotels --')
     # -- Transformation de la colonne 'Date de création' en datetime --
     hotels['Date de création'] = hotels['Date de création'].apply(lambda x: datetime.strptime(x, "%d %B %Y %H:%M"))
     print("Transformation de la colonne 'Date de création' terminée.")
@@ -243,7 +253,7 @@ def transform_hotel(hotels):
                    'Dernier contact Arnaud': 'last_contact', 'Date de création':'date_de_creation'}
     hotels.rename(columns=nvlles_cols, inplace=True)
 
-    print("Toutes les transformations sont terminées.")
+    print("-- Toutes les transformations sont terminées. --")
     print("######################")
     return hotels
 
@@ -269,6 +279,7 @@ def create_table_logiciel(extras):
     # je rajoute une colonne logiciel_id
     logiciel_df.insert(0, 'logiciel_id', range(1, 1 + len(logiciel_df)))
     logiciel_df['logiciel_id'] = 'l' + logiciel_df['logiciel_id'].astype(str)
+    print("Création de la table logiciel terminée.")
     return logiciel_df
 
 def join_table_logiciel_extra(extras, logiciel_df):
@@ -287,7 +298,6 @@ def join_table_logiciel_extra(extras, logiciel_df):
         extract_extra['logiciel'] = extract_extra['logiciel'].apply(split_logiciels)
     except:
         pass
-
     # -- Etape 2 -- 
     # je crée un dataframe qui regroupe les associations extra_id - logiciel_id
     # on utilise la fonction .apply() qui va appliquer sur chaque ligne la fonction process_row
@@ -320,12 +330,13 @@ def join_table_logiciel_extra(extras, logiciel_df):
         return pd.DataFrame(rows_to_append)
 
     join_table = pd.concat(extract_extra.apply(process_row, axis=1).tolist(), ignore_index=True)
+    print("Création de la table join_logiciel_extra terminée.")
     return join_table
 
 # fonction d'échantilonaage des données
 def echantillonnage(missions, hotels, extras):
     print("######################")
-    print('Phase d\'échantillonnage')
+    print('-- Phase d\'échantillonnage --')
     # on prend un echantillon des hotels et des extras pour masquer le nombre de clients réels
     # sample_size est une valeur cachée dans le .env
     hotels = hotels.sample(frac=sample_size, random_state=1)
@@ -342,13 +353,14 @@ def echantillonnage(missions, hotels, extras):
     # on filtre les missions à l'aide des conditions
     missions = missions[cond_hotels & cond_extras]
     print("######################")
-    print("Echantillonnage terminé.")
+    print("-- Echantillonnage terminé. --")
     # on retourne les 3 dataframes échantillonnées
     return missions, hotels, extras
 
-# fonction qui permet de multiplier les données financières par un coefficient confidentiel
-# afin de masquer les valeurs réelles
+# fonction qui permet un rescale des données financières dans les dataframes missions et hotels
 def rescale(missions, hotels):
+    print("######################")
+    print('-- Phase de rescaling --')
     # colonnes a rescaler dans le dataframe missions
     colonnes_missions = ['tarif_urgence', 'tarif_horaire', 'Total_HT', 'Total_TTC', 'extra_salaire', 'benefice']
     missions.loc[:, colonnes_missions] *= coefficient
@@ -358,6 +370,7 @@ def rescale(missions, hotels):
     hotels.loc[:, colonne_hotels] *= coefficient
 
     # on retourne les 2 dataframes rescalés
+    print("-- Rescaling terminé. --")
     return missions, hotels
   
 # fonction d'enregistrement des csv
@@ -377,8 +390,6 @@ def print_csv(missions_transform, extra_transform, hotel_transform, logiciel_df,
     if not os.path.exists(dirpath):
         os.mkdir(dirpath)
     else:
-        print("Le dossier existe déjà")
-        print(dirpath)
         pass
 
     # on enregiste les CSV dans le dossier CSV
@@ -394,6 +405,8 @@ def print_csv(missions_transform, extra_transform, hotel_transform, logiciel_df,
 
 # fonction d'enregistrement du csv pour le ML avec les données aggrégées par semaine
 def ml_transform_semaine(missions_transform):
+    print("######################")
+    print("Création des données pour la prédiction.")
     # on intialise le dataframe qui va stocker les données aggrégées
     df = pd.DataFrame()
 
@@ -431,7 +444,7 @@ def ml_transform_semaine(missions_transform):
     # dataframe final pour la prédiction
     df = pd.concat([df, future_dates_df], ignore_index=True)
         # si le dossier CSV existe pas alors on le crée
-    print("Donnée ML pour la prédiction.")
+    print("Donnée ML pour la prédiction crée.")
     return df
 
 

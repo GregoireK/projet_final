@@ -1,28 +1,20 @@
-# fichier de connexion au bucket S3 avec boto3
-
 import boto3
-import psycopg2
 import pandas as pd
 import sys
 import os
-import dotenv
-import sqlalchemy
 from io import BytesIO
 from io import StringIO
 import botocore
 from botocore.exceptions import NoCredentialsError
 from dotenv import load_dotenv, find_dotenv
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
-from sqlalchemy.orm import declarative_base, relationship
-from sqlalchemy.types import DateTime
 
-# on utilise un env pour masquer les identifiants de connexion.
+"""
+Le fichier connexion.py permet:
+- de crée une session avec boto3
+- de se connecter au bucket S3
+- de récupérer les csv
 
-
-# on crée une fonction qui va nous permettre de se connecter au bucket S3 et de récupérer les données csv
-
-
-# la fonction renverra un dataframe pandas pour chaque csv.
+"""
 
 def session_boto3():
     os.environ.clear()

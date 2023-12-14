@@ -15,10 +15,22 @@ from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.types import DateTime
 
 #from anonymisation import *
-from connexion import connexion_s3, session_boto3
+from connexion import *
 from transform import *
 from load_data import *
 
+
+"""
+Le fichier main.py appelle les différents modules du projet.
+Il permet de récupérer les données anonymisées dans un bucket S3.
+Il permet de créer les clés d'identification.
+Il permet de transformer les données.
+Il permet de sampler les données.
+Il permet de rescaler les données.
+Il permet également de créer les tables pour la prédiction et de les sauvegarder en CSV dans un dossier.
+Il permet enfin de charger les tables dans un RDS.
+
+"""
 
 
 def main():
