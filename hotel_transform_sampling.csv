@@ -1,0 +1,29 @@
+,hotel_id,nom,adresse,code,ville,logiciels,tenue,chambres,tarif_horaire,statuts,MAJ_procedure,last_contact,Notes,date_de_creation
+14,h15,Denis S.A.S.,"58, avenue Poirier",75019,Paris,mews,"chemise, costume, jeans",,600.0,,,,,2022-03-04 16:31:00
+19,h20,Jacob,"7, chemin de Texier",75016,Paris,topsys,"chaussures de ville, chemise, costume",,570.0,,,,,2021-12-26 23:52:00
+3,h4,Torres,"563, rue Lemaire",75009,Paris,clock,"basket blanches, chemise, jeans",,600.0,,,,,2023-09-06 08:50:00
+29,h30,Lemaire,"21, avenue Lebrun",75015,Paris,mews,"basket blanches, chemise",65.0,630.0,ancien,,,,2023-01-04 11:51:00
+33,h34,Delorme,"41, rue Clémence Lebreton",75006,Paris,misterbooking,"chaussures de ville, chemise, costume sombe",16.0,600.0,,,,,2021-12-26 20:17:00
+28,h29,Perret S.A.S.,"55, rue Gabriel Wagner",75009,Paris,medialog,"chemise, costume sombe",59.0,600.0,,,,,2021-12-26 20:18:00
+22,h23,Da Costa et Fils,"98, rue de Roy",75017,Paris,misterbooking,,,600.0,,,,,2022-12-31 00:07:00
+27,h28,Loiseau Coulon S.A.,"59, boulevard Isaac Dos Santos",75005,Paris,mews,,,600.0,,,,,2023-02-11 21:40:00
+26,h27,Navarro,"31, avenue de Blin",75015,Paris,medialog,"chaussures de ville, chemise, costume",,600.0,,,,,2023-06-21 14:54:00
+32,h33,Aubert S.A.S.,"697, chemin de Lemaire",75017,Paris,mews,"chemise, costume",,600.0,,,,,2021-12-26 20:19:00
+17,h18,Costa et Fils,rue Margaux Pichon,75011,Paris,medialog,"basket blanches, chemise, costume, jeans",,600.0,,,,,2022-02-26 17:37:00
+24,h25,Hebert S.A.,"69, rue de Poirier",92309,Levallois Perret,aucun,,,600.0,,,,,2023-07-31 15:17:00
+4,h5,Dupuis Bouvier S.A.R.L.,"9, rue Denis Charrier",75013,Paris,medialog,"chaussures de ville, chemise, costume",,600.0,ancien,,,,2022-03-24 12:35:00
+2,h3,Evrard Prévost S.A.S.,"68, avenue Gérard Lecoq",75015,Paris,mews,"basket blanches, chemise, jeans, polo blanc, polo bleu marine",57.0,630.0,ancien,,,,2022-07-21 22:50:00
+23,h24,Joly S.A.S.,"445, boulevard Andrée Giraud",75005,Paris,medialog,"chaussures de ville, chemise, costume",,600.0,,,,,2021-12-27 10:54:00
+25,h26,Lesage,"70, avenue Patricia Menard",75012,Paris,medialog,"chaussures de ville, chemise, costume",40.0,540.0,,,,,2021-12-27 10:55:00
+10,h11,Langlois Léger et Fils,"18, avenue de Delorme",75005,Paris,clock,"chaussures de ville, chemise, costume",,600.0,,,,,2021-12-27 10:51:00
+31,h32,Hoareau Bouvet S.A.S.,rue Costa,75009,Paris,medialog,"chaussures de ville, chemise, costume",,600.0,,,,,2021-12-26 23:44:00
+21,h22,Adam et Fils,boulevard Delmas,75010,Paris,medialog,"chaussures de ville, chemise, costume",,600.0,,,,,2021-12-27 10:53:00
+30,h31,Lopes,"3, rue Godard",75005,Paris,topsys,"chaussures de ville, chemise, costume sombe, cravate",65.0,630.0,,,,,2022-08-18 13:33:00
+20,h21,Devaux Chauveau SA,"48, chemin Royer",75008,Paris,topsys,"chaussures de ville, chemise, costume",,630.0,,,,,2021-12-30 10:39:00
+18,h19,Wagner,boulevard Lacombe,75018,Paris,mews,,,,ancien,,,,2021-12-27 10:52:00
+6,h7,Marques,"20, avenue Adèle Schneider",75006,Paris,medialog,"chaussures de ville, chemise, costume",,630.0,,,,,2021-12-27 10:47:00
+13,h14,Valentin,"22, rue de Lévêque",92110,Clichy,medialog,"chemise, costume, jeans",,600.0,,,,,2021-12-27 10:24:00
+7,h8,Imbert,"85, avenue Weber",75014,Paris,apaleo,,143.0,630.0,,,,,2021-12-27 10:49:00
+34,h35,Martinez et Fils,"43, avenue Emmanuelle Delorme",75015,Paris,medialog,"chaussures de ville, chemise, costume sombe",16.0,600.0,,,,,2022-04-27 18:55:00
+1,h2,Robert,"54, chemin de Normand",75013,Paris,aucun,"chaussures de ville, chemise, costume",,540.0,,,7 juin 2023,verre avec Erwan,2021-12-27 18:58:00
+16,h17,Deschamps Launay S.A.,boulevard de Briand,75001,Paris,mews,"chaussures de ville, chemise, costume sombe",,630.0,,,,,2023-11-09 18:52:00

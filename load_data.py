@@ -25,7 +25,8 @@ Base = declarative_base()
 
 def load_data_to_rds(df_missions, df_extra, df_hotel, df_logiciel, df_logiciel_extra):
     os.environ.clear()
-    load_dotenv(find_dotenv("/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/dotenv/.env"))
+    # load_dotenv(find_dotenv("/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/dotenv/.env"))
+    load_dotenv(find_dotenv(".env"))
     AWS_RDS_ENDPOINT= os.environ.get("AWS_RDS_ENDPOINT")
     AWS_RDS_REGION=os.environ.get("AWS_RDS_REGION")
     DBNAME = os.environ.get("DBNAME")

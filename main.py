@@ -46,18 +46,22 @@ def main():
 
     logiciel = create_table_logiciel(transform_e)
 
-    # -- sampling des données --
+    # -- sampling des données et rescaling --
 
     sampling = echantillonnage(transform_m, transform_h, transform_e)
 
-    missions_transform_final = sampling[0]
-    hotel_transform_final = sampling[1]
-    extras_transform_final = sampling[2]
+    missions_transform_s= sampling[0]
+    hotel_transform_s = sampling[1]
+    extras_transform_s = sampling[2]
+
+     # -- rescaling des données financières dans les tables missions et hotels -- 
+
+    rescaling = rescale(missions_transform_s, hotel_transform_s)
+    missions_transform_final = rescaling[0]
+    hotel_transform_final = rescaling[1]
+    extras_transform_final = extras_transform_s
 
     join_table = join_table_logiciel_extra(extras = extras_transform_final, logiciel_df = logiciel )
-
-    # -- connexion au RDS et transfère des données --
-
 
     # -- print en csv (optionnel) --
     print_csv(missions_transform=missions_transform_final,
@@ -65,6 +69,8 @@ def main():
                 hotel_transform=hotel_transform_final,
                 logiciel_df=logiciel,
                 join_table=join_table)
+
+    # -- connexion au RDS et transfère des données --
     
     load_data_to_rds(df_missions=missions_transform_final, 
                      df_extra=extras_transform_final, 
@@ -72,7 +78,8 @@ def main():
                      df_logiciel=logiciel, 
                      df_logiciel_extra=join_table)
 
-   
+   # -- je créé le fichier pour la prédiction --
+    ml_transform_semaine(missions_transform_final)
 
 
 if __name__ == "__main__":

@@ -6,21 +6,25 @@ import os
 import dotenv
 from dotenv import load_dotenv, find_dotenv
 from datetime import datetime
+from datetime import timedelta
 import locale
 
-locale.setlocale(locale.LC_TIME, 'fr_FR.utf8')
+# definition du language selon l'utilisateur
+# locale.setlocale(locale.LC_TIME, 'fr_FR.utf8') 
+locale.setlocale(locale.LC_TIME, 'fr_FR')
 
 
 
 # récupération des tarifs confidentiels dans le .env
 os.environ.clear()
 #load_dotenv(find_dotenv(".env"))
-load_dotenv(find_dotenv("/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/dotenv/.env"))
+# load_dotenv(find_dotenv("/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/dotenv/.env"))
+load_dotenv(find_dotenv(".env"))
 extra_salaire = float(os.environ.get("extra_salaire"))
 extra_salaire_urgence = float(os.environ.get("extra_salaire_urgence"))
 tarif_urgence = float(os.environ.get("tarif_urgence"))
 sample_size = float(os.environ.get("sample_size"))
-
+coefficient = float(os.environ.get("coefficient"))
 
 # fonction de création des key et des foreign key dans les dataframes extra, hotel et missions
 def foreign_key_setup(missions, hotels, extras):
@@ -87,6 +91,9 @@ def transform_missions(missions):
     # conversion des colonnes date_debut et date_fin en datetime 
     missions['date_debut'] = pd.to_datetime(missions['date_debut'], format='%d/%m/%Y %H:%M')
     missions['date_fin'] = pd.to_datetime(missions['date_fin'], format='%d/%m/%Y %H:%M')
+
+    missions.drop('date', axis=1, inplace=True) # suppression de la colonne date
+
     print("Transformation de la colonne date terminée.")
 
     # -- fin de la transformation de la colonne date --
@@ -150,11 +157,16 @@ def transform_missions(missions):
     print("Ajout de la colonne extra_salaire terminée.")
     # -- fin de l'ajout de la colonne extra_salaire --
 
-    # -- ajout de la colonne bénéfice --
-    # la colonne bénéfice correspond au total ht moins le salaire de l'extra
-    missions['bénéfice'] = missions['Total_HT'] - missions['extra_salaire']
-    print("Ajout de la colonne bénéfice terminée.")
-    # -- fin de l'ajout de la colonne bénéfice --
+    # -- ajout de la colonne benefice --
+    # la colonne benefice correspond au total ht moins le salaire de l'extra
+    missions['benefice'] = missions['Total_HT'] - missions['extra_salaire']
+    print("Ajout de la colonne benefice terminée.")
+    # -- fin de l'ajout de la colonne benefice --
+
+     # on renomme les colonnes pour enlever les caractères unicodes qui posent problème pour la connexion PostgreSQL - Looker
+    nvlles_cols = {'hôtel':'hotel_id', 'extra': 'extra_id', 'tarif urgence':'tarif_urgence', 
+                   'tarif horaire': 'tarif_horaire', 'règlement':'reglement'}
+    missions.rename(columns=nvlles_cols, inplace=True)
 
     print("Toutes les transformations sont terminées.")
     print("######################")
@@ -218,6 +230,11 @@ def transform_hotel(hotels):
 
     # -- On enleve les espaces au debut et à la fin de toutes les colonnes texte --
     hotels = hotels.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+
+    # on renomme les colonnes pour enlever les caractères unicodes qui posent problème pour la connexion PostgreSQL - Looker
+    nvlles_cols = {'tarif horaire ':'tarif_horaire', 'MAJ procédures': 'MAJ_procedure', 
+                   'Dernier contact Arnaud': 'last_contact', 'Date de création':'date_de_creation'}
+    hotels.rename(columns=nvlles_cols, inplace=True)
 
     print("Toutes les transformations sont terminées.")
     print("######################")
@@ -307,15 +324,13 @@ def echantillonnage(missions, hotels, extras):
     hotels = hotels.sample(frac=sample_size, random_state=1)
     extras = extras.sample(frac=sample_size, random_state=1)
 
-
-    
     # on récupère la liste d'hotels et d'extras de l'échantillon
     valeurs_hotels = hotels['hotel_id'].unique()
     valeurs_extras = extras['extra_id'].unique()
 
     # on créé des conditions pour garder les missions ayant un extra et un hôtel inclus dans les échantillons pris ci-dessus
-    cond_hotels = missions['hôtel'].isin(valeurs_hotels)
-    cond_extras = missions['extra'].isin(valeurs_extras)
+    cond_hotels = missions['hotel_id'].isin(valeurs_hotels)
+    cond_extras = missions['extra_id'].isin(valeurs_extras)
 
     # on filtre les missions à l'aide des conditions
     missions = missions[cond_hotels & cond_extras]
@@ -323,16 +338,35 @@ def echantillonnage(missions, hotels, extras):
     print("Echantillonnage terminé.")
     # on retourne les 3 dataframes échantillonnées
     return missions, hotels, extras
+
+# fonction qui permet de multiplier les données financières par un coefficient confidentiel
+# afin de masquer les valeurs réelles
+def rescale(missions, hotels):
+    # colonnes a rescaler dans le dataframe missions
+    colonnes_missions = ['tarif_urgence', 'tarif_horaire', 'Total_HT', 'Total_TTC', 'extra_salaire', 'benefice']
+    missions.loc[:, colonnes_missions] *= coefficient
+
+    # colonne a rescaler dans le dataframe hotels
+    colonne_hotels = ['tarif_horaire']
+    hotels.loc[:, colonne_hotels] *= coefficient
+
+    # on retourne les 2 dataframes rescalés
+    return missions, hotels
   
 # fonction d'enregistrement des csv
 def print_csv(missions_transform, extra_transform, hotel_transform, logiciel_df, join_table):
     print("######################")
     print("Phase d'enregistrement des CSV")
-    missions_transform.to_csv('/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/missions_transform_sampling.csv')
-    extra_transform.to_csv('/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/extra_transform_sampling.csv') 
-    hotel_transform.to_csv('/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/hotel_transform_sampling.csv')
-    logiciel_df.to_csv("/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/logiciel.csv")
-    join_table.to_csv("/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/join_logiciel_extra.csv")
+    # missions_transform.to_csv('/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/missions_transform_sampling.csv')
+    # extra_transform.to_csv('/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/extra_transform_sampling.csv') 
+    # hotel_transform.to_csv('/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/hotel_transform_sampling.csv')
+    # logiciel_df.to_csv("/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/logiciel.csv")
+    # join_table.to_csv("/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/join_logiciel_extra.csv")
+    missions_transform.to_csv('missions_transform_sampling.csv')
+    extra_transform.to_csv('extra_transform_sampling.csv') 
+    hotel_transform.to_csv('hotel_transform_sampling.csv')
+    logiciel_df.to_csv("logiciel.csv")
+    join_table.to_csv("join_logiciel_extra.csv")
     print("CSV enregistrés.")
     print("######################") 
 
@@ -351,10 +385,54 @@ def ml_transform_save(missions_transform):
     # je fais un group by pour compter le nombre de missions par jour avec la fonction size()
     missions_par_jour = df.groupby('date').size()
     # j'enregistre le tout dans un csv. 
-    missions_par_jour.to_csv('/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/ml_mission.csv')
+    # missions_par_jour.to_csv('/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/ml_mission.csv')
+    missions_par_jour.to_csv('ml_mission.csv')
 
     print("CSV pour le ML enregistré")
 
+
+# fonction d'enregistrement du csv pour le ML avec les données aggrégées par semaine
+def ml_transform_semaine(missions_transform):
+    # on intialise le dataframe qui va stocker les données aggrégées
+    df = pd.DataFrame()
+
+    # on détermine la semaine ISO à partir de la date
+    df['iso_week'] = missions_transform['date_debut'].dt.strftime('%G-W%V')
+
+    # on aggrége le nombre de missions par semaine ISO
+    df = df.groupby('iso_week').size().reset_index()
+    df.columns = ['iso_week', 'total_missions']
+
+    # on supprime la première semaine du dataset au cas où elle n'est pas complète
+    premiere_semaine = min(df['iso_week'])
+    df = df[df['iso_week'] != premiere_semaine]
+
+    # on retire toutes les semaines supérieures ou égales à la semaine d'extraction du fichier (ici 2023-W48)
+    df = df[df['iso_week'] <= '2023-W48']
+
+    # on determine la datetime correspondant au debut de chaque semaine car le modèle de prédiction a besoin d'un datetime
+    df['start_of_week'] = df['iso_week'].apply(lambda x: datetime.fromisoformat(x + '-1'))
+
+    # on retire la colonne 'iso_week'
+    df.drop(columns=['iso_week'], inplace=True)
+    df.columns = ['total_missions', 'start_of_week']
+    # on rearrange l'ordre des colonnes
+    df = df[['start_of_week', 'total_missions']]
+
+    # on calcule les datetime correspondant aux 4 prochaines semaines
+    last_start_of_week = df['start_of_week'].iloc[-1]
+    future_start_of_weeks = pd.date_range(start=last_start_of_week + timedelta(days=7), periods=4, freq='7D')
+
+    # on créé un dataframe avec les futures dates et le total_missions vide
+    future_dates_df = pd.DataFrame({'start_of_week': future_start_of_weeks,
+                                'total_missions': [None] * 4})
+    
+    # dataframe final pour la prédiction
+    df = pd.concat([df, future_dates_df], ignore_index=True)
+
+    df.to_csv("missions_par_semaine.csv", index=False)
+
+    print("CSV semaine pour le ML enregistré")
 
         
 

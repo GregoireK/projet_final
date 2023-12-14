@@ -26,7 +26,8 @@ from sqlalchemy.types import DateTime
 
 def session_boto3():
     os.environ.clear()
-    load_dotenv(find_dotenv("/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/dotenv/.env"))
+    # load_dotenv(find_dotenv("/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/dotenv/.env"))
+    load_dotenv(find_dotenv(".env"))
 
     aws_access_key_id=os.environ.get("AWS_S3_ACCES_KEY_ID")
     aws_secret_access_key=os.environ.get("AWS_S3_SECRET_ACCESS_KEY")
