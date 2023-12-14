@@ -1,0 +1,8 @@
+# Ignore le fichier .env
+.env
+
+# Ignore les csv
+.csv
+
+# Ignore les pycache
+__pycache__/
