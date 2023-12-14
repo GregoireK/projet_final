@@ -8,6 +8,7 @@ Elle nous a sollicité afin de réaliser 3 taches principales :
 - mettre en place une base de données relationelle 
 - construire un dashboard alimenté par cette BDD
 - prédire le nombre de missions futur pour anticiper le besoin en extras
+  
 L'ensemble des données de l'entreprise est pour l'instant stocké dans Notion mais à terme sera hébergé dans une RDMS qui sera connectée au site web de l'entreprise.
 Nous avons à notre disposition plusieurs fichiers csv extraits de Notion.
 
