@@ -63,12 +63,16 @@ def main():
 
     join_table = join_table_logiciel_extra(extras = extras_transform_final, logiciel_df = logiciel )
 
+    # -- je créé le fichier pour la prédiction --
+    ml_transform_semaine(missions_transform_final)
+
     # -- print en csv (optionnel) --
     print_csv(missions_transform=missions_transform_final,
                 extra_transform=extras_transform_final,
                 hotel_transform=hotel_transform_final,
                 logiciel_df=logiciel,
-                join_table=join_table)
+                join_table=join_table,
+                ml_table=ml_transform_semaine(missions_transform_final))
 
     # -- connexion au RDS et transfère des données --
     
@@ -77,9 +81,6 @@ def main():
                      df_hotel=hotel_transform_final, 
                      df_logiciel=logiciel, 
                      df_logiciel_extra=join_table)
-
-   # -- je créé le fichier pour la prédiction --
-    ml_transform_semaine(missions_transform_final)
 
 
 if __name__ == "__main__":

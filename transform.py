@@ -361,7 +361,7 @@ def rescale(missions, hotels):
     return missions, hotels
   
 # fonction d'enregistrement des csv
-def print_csv(missions_transform, extra_transform, hotel_transform, logiciel_df, join_table):
+def print_csv(missions_transform, extra_transform, hotel_transform, logiciel_df, join_table, ml_table):
     print("######################")
     print("Phase d'enregistrement des CSV")
     # on définit le chemin du fihcier python qui est lancé
@@ -387,30 +387,10 @@ def print_csv(missions_transform, extra_transform, hotel_transform, logiciel_df,
     hotel_transform.to_csv("{}/hotel_transform_sampling.csv".format(dirpath))
     logiciel_df.to_csv("{}/logiciel.csv".format(dirpath))
     join_table.to_csv("{}/join_logiciel_extra.csv".format(dirpath))
+    ml_table.to_csv("{}/ml_missions_par_semaine.csv".format(dirpath), index=False)
 
     print("CSV enregistrés.")
     print("######################") 
-
-# fonction d'enregistrement du csv pour le ML
-def ml_transform_save(missions_transform):
-    # je crée une colonne date avec uniquement la date en yyyy-mm-dd
-    missions_transform['date'] = pd.to_datetime(missions_transform['date_debut']).dt.date
-
-    # je filtre les date pour ne pas avoir les dates après le 03 décembre 
-    # ne pas oublier de tranfromer la date avec pd.to_datetime("yyyy-mm-dd") et d'y ajouter.date() 
-    # pour que la comparaison se fasse au même format
-    d = pd.to_datetime("2023-12-03").date()
-    df= missions_transform[missions_transform['date'] <= d]
-
-
-    # je fais un group by pour compter le nombre de missions par jour avec la fonction size()
-    missions_par_jour = df.groupby('date').size()
-    # j'enregistre le tout dans un csv. 
-    # missions_par_jour.to_csv('/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/ml_mission.csv')
-    missions_par_jour.to_csv('ml_mission.csv')
-
-    print("CSV pour le ML enregistré")
-
 
 # fonction d'enregistrement du csv pour le ML avec les données aggrégées par semaine
 def ml_transform_semaine(missions_transform):
@@ -450,10 +430,10 @@ def ml_transform_semaine(missions_transform):
     
     # dataframe final pour la prédiction
     df = pd.concat([df, future_dates_df], ignore_index=True)
+        # si le dossier CSV existe pas alors on le crée
+    print("Donnée ML pour la prédiction.")
+    return df
 
-    df.to_csv("missions_par_semaine.csv", index=False)
-
-    print("CSV semaine pour le ML enregistré")
 
         
 
