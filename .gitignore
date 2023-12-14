@@ -2,10 +2,12 @@
 .env
 
 # Ignore les csv
-.csv
+*.csv
 
 # Ignore les pycache
 __pycache__/
+*.pyc
+*.pyo
 
 # Ignore DS_store
 **/.DS_Store
