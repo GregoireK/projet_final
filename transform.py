@@ -3,6 +3,7 @@
 import pandas as pd
 import numpy as np
 import os
+import sys
 import dotenv
 from dotenv import load_dotenv, find_dotenv
 from datetime import datetime
@@ -10,16 +11,22 @@ from datetime import timedelta
 import locale
 
 # definition du language selon l'utilisateur
-# locale.setlocale(locale.LC_TIME, 'fr_FR.utf8') 
-locale.setlocale(locale.LC_TIME, 'fr_FR')
+try:
+    locale.setlocale(locale.LC_TIME, 'fr_FR.utf8') 
+except:
+    pass
+try:
+    locale.setlocale(locale.LC_TIME, 'fr_FR')
+except:
+    pass
 
 
 
 # récupération des tarifs confidentiels dans le .env
 os.environ.clear()
-#load_dotenv(find_dotenv(".env"))
-# load_dotenv(find_dotenv("/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/dotenv/.env"))
+
 load_dotenv(find_dotenv(".env"))
+
 extra_salaire = float(os.environ.get("extra_salaire"))
 extra_salaire_urgence = float(os.environ.get("extra_salaire_urgence"))
 tarif_urgence = float(os.environ.get("tarif_urgence"))
@@ -357,16 +364,30 @@ def rescale(missions, hotels):
 def print_csv(missions_transform, extra_transform, hotel_transform, logiciel_df, join_table):
     print("######################")
     print("Phase d'enregistrement des CSV")
-    # missions_transform.to_csv('/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/missions_transform_sampling.csv')
-    # extra_transform.to_csv('/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/extra_transform_sampling.csv') 
-    # hotel_transform.to_csv('/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/hotel_transform_sampling.csv')
-    # logiciel_df.to_csv("/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/logiciel.csv")
-    # join_table.to_csv("/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/csv/join_logiciel_extra.csv")
-    missions_transform.to_csv('missions_transform_sampling.csv')
-    extra_transform.to_csv('extra_transform_sampling.csv') 
-    hotel_transform.to_csv('hotel_transform_sampling.csv')
-    logiciel_df.to_csv("logiciel.csv")
-    join_table.to_csv("join_logiciel_extra.csv")
+    # on définit le chemin du fihcier python qui est lancé
+    __file__ = sys.argv[0]
+
+    # dans la variable dirpath = on crée un chemin absolue à partir du chemin relatif du fichier python
+    # dans la variable dirname = on crée le nom du dossier que l'on veut créer
+    filepath, dirname = os.path.dirname(os.path.abspath(__file__)), "CSV"
+    # on crée le chemin absolu du dossier que l'on veut créer avec le dossier parent et le nome du dossier
+    dirpath = os.path.join(filepath, dirname)
+
+    # si le dossier CSV existe pas alors on le crée
+    if not os.path.exists(dirpath):
+        os.mkdir(dirpath)
+    else:
+        print("Le dossier existe déjà")
+        print(dirpath)
+        pass
+
+    # on enregiste les CSV dans le dossier CSV
+    missions_transform.to_csv("{}/missions_transform_sampling.csv".format(dirpath))
+    extra_transform.to_csv("{}/extra_transform_sampling.csv".format(dirpath))
+    hotel_transform.to_csv("{}/hotel_transform_sampling.csv".format(dirpath))
+    logiciel_df.to_csv("{}/logiciel.csv".format(dirpath))
+    join_table.to_csv("{}/join_logiciel_extra.csv".format(dirpath))
+
     print("CSV enregistrés.")
     print("######################") 
 
