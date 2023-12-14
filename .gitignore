@@ -2,6 +2,7 @@
 .env
 
 # Ignore les csv
+CSV/
 *.csv
 
 # Ignore les pycache
