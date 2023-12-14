@@ -6,3 +6,6 @@
 
 # Ignore les pycache
 __pycache__/
+
+# Ignore DS_store
+**/.DS_Store
