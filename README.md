@@ -110,6 +110,10 @@ Les données transformées sont chargées dans les tables correspondantes du RDS
 Si les tables existent déjà, les données existantes sont remplacées par les nouvelles données, 
 ce qui facilite le processus pendant les phases de test et de développement.
 
+**Schéma de la base de donnée**
+
+![Alt text](assets/projet_final_diagramme.png)
+
 # Dashboard enlight résult for buseniss analytics 
 ## gif de présentation 
 
@@ -129,7 +133,7 @@ Nous avons proposé à la société Qxxxxxxxxa:
 - .gitignore : pour ignorer le fichier .env (données confidentielles) lors du push vers github 
 - LDM_RDS.png : image contenant le modèle data logique pour la RDS
 
-![Alt text](assets/projet_final_diagramme.png)
+
 
 
 **Auteur:** 
