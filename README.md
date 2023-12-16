@@ -1,7 +1,7 @@
 # Projet_final 
 Projet final de la formation Data analyst à JEDHA BOOTCAMP
 
-**Présentation PPT** : Vous pouvez accéder à la présentation [ici](a ajouter)
+**Présentation PPT** : Vous pouvez accéder à la présentation [ici](lien à ajouter)
 
 # Contexte
 
@@ -123,13 +123,17 @@ ce qui facilite le processus pendant les phases de test et de développement.
 
 ![Alt text](assets/projet_final_diagramme.png)
 
-# Dashboard analytique
+# Dashboard Looker
 
 Le dashboard a été construit dans Looker car cet outil faisait partie des options spécifiées par le client.
 Le design du dashboard reprend la charte graphique de l'entreprise.
 Il a été organisé en plusieurs sections qui regroupent les pages par thème: missions, hôtels, extras.
 Le retour client a été pris en compte tout au long du processus de création du dashboard afin de l'ajuster à son besoin.
+Nous avons construit un dashboard privé pour le client avec ses vraies données et un anonymisé pour diffusion externe dans le cadre du projet.
 
+Lien vers le dashboard: [Dashboard Anonymisé](https://lookerstudio.google.com/s/r9gWSvG6i4k)
+
+**Capture d'écran du dashboard**
 ![Alt text](assets/capture_dashboard.png)
 
 # Prédictions ML
@@ -141,23 +145,14 @@ L'horizon temporel pour la prédiction est de 4 semaines.
 Le modèle le plus performant selon la métrique MAPE (Mean Absolute Percentage Error) est le NPTS (Non-Parametric Time Series) avec une MAPE de 12%.
 Il y a la possibilité de faire des prédictions sur un horizon temporel plus long, cependant la performance du modèle diminue.
 
+**Flow utilisé dans Dataiku**
 ![Alt text](assets/image_ml_flow.png)
 
-# Resultats
+# Résultats
 Nous avons proposé à la société Qxxxxxxxxa:
 - une RDMS avec plusieurs tables permettant de stocker les informations nécessaires à l'activité de l'entreprise (cf. schéma du Logical Data Model). Cette base de donnée a servi pour la construction du dashboard mais peut etre réutilisée et enrichie lorsque le site web de la société sera déployé.
 - un dashboard dans Looker avec plusieurs pages qui permet à la fois le reporting et le pilotage des opérations quotidiennes. Concernant le reporting, le dashboard inclut les KPIs utiles à l'entreprise pour évaluer sa performance passée et actuelle. Concernant le pilotage, le dashboard permet de visualiser les missions prévues / d'identifier les missions à affecter à un extra / de trouver l'extra pertinent pour une mission donnée / d'estimer le nombre de missions à venir...
 - les résultats de prédiction de Dataiku ont été intégrés dans Looker pour la visualisation. Les prédictions ont été réalisé par semaine pour les 4 prochaines semaines en utilisant les données historiques (104 semaines). Le modèle le plus performant parmi ceux testés est le NPTS (MAPE 12%), c'est celui qui a été utilisé pour la prédiction. 
-
-# Description des fichiers contenu dans le projet
-- anonymisation : anonymisation des données (noms hôtels, extras, adresse) pour des raisons de confidentialité
-- main : script principal qui appellent l'ensemble des autres scripts
-- connexion : connexion à Amazon S3 pour la récupération des csv
-- transform : transformation des données afin d'avoir un format exploitable pour la visualisation
-- load_data : envoi des données transformées vers Amazon RDS
-- .gitignore : pour ignorer le fichier .env (données confidentielles) lors du push vers github 
-- LDM_RDS.png : image contenant le modèle data logique pour la RDS
-
 
 # Auteurs
 - Grégoire Kelesoglu
