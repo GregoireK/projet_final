@@ -1,5 +1,7 @@
-# Projet_final
+# Projet_final 
 Projet final de la formation Data analyst à JEDHA BOOTCAMP
+
+**Présentation PPT* : Vous pouvez accéder à la présentation [ici](a ajouter)
 
 # Contexte
 
@@ -25,7 +27,7 @@ Nous avons utilisé Dataiku pour la prédiction.
 
 # Pipeline Data (From CSV to RDS)
 
-## Structure du dossier 
+## Structure du projet 
 ```bash
 
 final_project/
@@ -38,12 +40,19 @@ final_project/
 |-- transform.py
 |-- main.py
 ```
+- assets : dossier qui contient les images utilisées dans le readme
+- anonymisation.py : script d'anonymisation des données (noms hôtels, extras, adresse) pour des raisons de confidentialité
+- main.py : script principal qui appellent l'ensemble des autres scripts
+- connexion.py : script de connexion à Amazon S3 pour la récupération des csv
+- transform.py : script de transformation des données afin d'avoir un format exploitable pour la visualisation
+- load_data.py : script de chargement des données transformées dans Amazon RDS
+- .gitignore : pour ignorer le fichier .env (données confidentielles) lors du push vers github 
 
 ## Connexion 
 Le fichier (`connexion.py`) permet la connexion avec le bucket S3. On utilise la bibliothèque Boto3 qui permet d'interagir avec les services AWS. 
 
 ## Extract
-Le fichier (`connexion.py`) permet également de récuperer les données brut présnetes dans le bucket S3
+Le fichier (`connexion.py`) permet également de récuperer les données brut présentes dans le bucket S3
 
 ## Transform
 Le script (`tranform.py`) rassemble l'ensemble des transformations effectués sur les données. 
@@ -114,9 +123,25 @@ ce qui facilite le processus pendant les phases de test et de développement.
 
 ![Alt text](assets/projet_final_diagramme.png)
 
-# Dashboard enlight résult for buseniss analytics 
-## gif de présentation 
+# Dashboard analytique
 
+Le dashboard a été construit dans Looker car cet outil faisait partie des options spécifiées par le client.
+Le design du dashboard reprend la charte graphique de l'entreprise.
+Il a été organisé en plusieurs sections qui regroupent les pages par thème: missions, hôtels, extras.
+Le retour client a été pris en compte tout au long du processus de création du dashboard afin de l'ajuster à son besoin.
+
+![Alt text](assets/capture_dashboard.png)
+
+# Prédictions ML
+
+La prédiction a été faite dans Dataiku car cet outil permet de comparer rapidement plusieurs modèles de ML et de choisir le modèle le plus performant pour notre cas d'usage.
+Les données journalières ont été aggrégées par semaine afin d'avoir une prédiction à la semaine, ce qui correspond au besoin client.
+L'horizon temporel pour la prédiction est de 4 semaines.
+6 modèles ont été testés: Trivial identity, Seasonal naive, AutoARIMA, Seasonal trend, Prophet et NPTS.
+Le modèle le plus performant selon la métrique MAPE (Mean Absolute Percentage Error) est le NPTS (Non-Parametric Time Series) avec une MAPE de 12%.
+Il y a la possibilité de faire des prédictions sur un horizon temporel plus long, cependant la performance du modèle diminue.
+
+![Alt text](assets/image_ml_flow.png)
 
 # Resultats
 Nous avons proposé à la société Qxxxxxxxxa:
@@ -134,9 +159,9 @@ Nous avons proposé à la société Qxxxxxxxxa:
 - LDM_RDS.png : image contenant le modèle data logique pour la RDS
 
 
-
-
-**Auteur:** 
+# Auteurs
+- Grégoire Kelesoglu
+- Sarah Sahli 
 
 
 
