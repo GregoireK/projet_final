@@ -44,7 +44,8 @@ extra_salaire = float(os.environ.get("extra_salaire"))
 extra_salaire_urgence = float(os.environ.get("extra_salaire_urgence"))
 tarif_urgence = float(os.environ.get("tarif_urgence"))
 sample_size = float(os.environ.get("sample_size"))
-coefficient = float(os.environ.get("coefficient"))
+coeff_hotel = float(os.environ.get("coeff_hotel"))
+coeff_extra = float(os.environ.get("coeff_extra"))
 
 # fonction de création des key et des foreign key dans les dataframes extra, hotel et missions
 def foreign_key_setup(missions, hotels, extras):
@@ -363,12 +364,14 @@ def rescale(missions, hotels):
     print("######################")
     print('-- Phase de rescaling --')
     # colonnes a rescaler dans le dataframe missions
-    colonnes_missions = ['tarif_urgence', 'tarif_horaire', 'Total_HT', 'Total_TTC', 'extra_salaire', 'benefice']
-    missions.loc[:, colonnes_missions] *= coefficient
+    colonnes_missions= ['tarif_urgence', 'tarif_horaire', 'Total_HT', 'Total_TTC']
+    missions.loc[:, colonnes_missions] *= coeff_hotel
+    missions.loc[:, 'extra_salaire'] *= coeff_extra
+    missions['benefice'] = missions['Total_HT'] - missions['extra_salaire']
 
     # colonne a rescaler dans le dataframe hotels
     colonne_hotels = ['tarif_horaire']
-    hotels.loc[:, colonne_hotels] *= coefficient
+    hotels.loc[:, colonne_hotels] *= coeff_hotel
 
     # on retourne les 2 dataframes rescalés
     print("-- Rescaling terminé. --")
@@ -410,6 +413,9 @@ def ml_transform_semaine(missions_transform):
     print("Création des données pour la prédiction.")
     # on intialise le dataframe qui va stocker les données aggrégées
     df = pd.DataFrame()
+    # on retire les missions annulées
+    non_annulees = missions_transform['annulation'].isna()
+    missions_transform = missions_transform[non_annulees]
 
     # on détermine la semaine ISO à partir de la date
     df['iso_week'] = missions_transform['date_debut'].dt.strftime('%G-W%V')
