@@ -1,7 +1,7 @@
 # Projet_final 
 Projet final de la formation Data analyst à JEDHA BOOTCAMP
 
-**Présentation PPT* : Vous pouvez accéder à la présentation [ici](a ajouter)
+**Présentation PPT** : Vous pouvez accéder à la présentation [ici](a ajouter)
 
 # Contexte
 
