@@ -1,11 +1,11 @@
 # Projet_final 
 Projet final de la formation Data analyst à JEDHA BOOTCAMP
 
-**Présentation PPT** : Vous pouvez accéder à la présentation [ici](lien à ajouter)
+**Présentation PPT** : Vous pouvez accéder à la présentation [ici](https://docs.google.com/presentation/d/1ivHV3m2DAYQtU51cIIqtqDSTrIup_5nV4prSofhQgkg/edit?usp=sharing)
 
 # Contexte
 
-La société Qxxxxxxxxa est une entreprise de mise en relation entre des hôtels et des extras pour des missions ponctuelles de réceptionniste. 
+La société QualiExtra est une entreprise de mise en relation entre des hôtels et des extras pour des missions ponctuelles de réceptionniste. 
 Elle nous a sollicité afin de réaliser 3 taches principales :
 - mettre en place une base de données relationelle 
 - construire un dashboard alimenté par cette BDD
@@ -149,7 +149,7 @@ Il y a la possibilité de faire des prédictions sur un horizon temporel plus lo
 ![Alt text](assets/image_ml_flow.png)
 
 # Résultats
-Nous avons proposé à la société Qxxxxxxxxa:
+Nous avons proposé à la société QualiExtra:
 - une RDMS avec plusieurs tables permettant de stocker les informations nécessaires à l'activité de l'entreprise (cf. schéma du Logical Data Model). Cette base de donnée a servi pour la construction du dashboard mais peut etre réutilisée et enrichie lorsque le site web de la société sera déployé.
 - un dashboard dans Looker avec plusieurs pages qui permet à la fois le reporting et le pilotage des opérations quotidiennes. Concernant le reporting, le dashboard inclut les KPIs utiles à l'entreprise pour évaluer sa performance passée et actuelle. Concernant le pilotage, le dashboard permet de visualiser les missions prévues / d'identifier les missions à affecter à un extra / de trouver l'extra pertinent pour une mission donnée / d'estimer le nombre de missions à venir...
 - les résultats de prédiction de Dataiku ont été intégrés dans Looker pour la visualisation. Les prédictions ont été réalisé par semaine pour les 4 prochaines semaines en utilisant les données historiques (104 semaines). Le modèle le plus performant parmi ceux testés est le NPTS (MAPE 12%), c'est celui qui a été utilisé pour la prédiction. 
