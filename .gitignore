@@ -1,1 +1,14 @@
-/home/gregoirek/Documents/JEDHA/2_Fullstack/x_projet_final/dotenv/.env
+# Ignore le fichier .env
+.env
+
+# Ignore les csv
+CSV/
+*.csv
+
+# Ignore les pycache
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore DS_store
+**/.DS_Store

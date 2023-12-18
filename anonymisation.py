@@ -9,6 +9,8 @@ missions = pd.read_csv('00_missions.csv', sep=";")
 hotel = pd.read_csv('01_hotel.csv', sep=";")
 extras = pd.read_csv('02_extras.csv', sep=";")
 
+
+
 # Compte du nombre d'hotels et d'extras
 nb_hotel = hotel.shape[0]
 nb_extras = extras.shape[0]
